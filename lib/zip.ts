@@ -62,6 +62,10 @@ async function toBytes(data: Blob | Uint8Array) {
   return new Uint8Array(await data.arrayBuffer())
 }
 
+function toBlobPart(data: Uint8Array): ArrayBuffer {
+  return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength)
+}
+
 export async function createZip(entries: ZipEntry[]) {
   const files = await Promise.all(
     entries.map(async (entry) => ({
@@ -123,7 +127,9 @@ export async function createZip(entries: ZipEntry[]) {
   writeUint32(endView, 12, centralSize)
   writeUint32(endView, 16, offset)
 
-  return new Blob([...localParts, ...centralParts, endHeader], {
+  const zipParts = [...localParts, ...centralParts, endHeader].map(toBlobPart)
+
+  return new Blob(zipParts, {
     type: "application/zip",
   })
 }

@@ -63,7 +63,10 @@ async function toBytes(data: Blob | Uint8Array) {
 }
 
 function toBlobPart(data: Uint8Array): ArrayBuffer {
-  return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength)
+  const copy = new Uint8Array(data.byteLength)
+
+  copy.set(data)
+  return copy.buffer
 }
 
 export async function createZip(entries: ZipEntry[]) {

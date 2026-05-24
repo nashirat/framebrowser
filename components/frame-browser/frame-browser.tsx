@@ -24,27 +24,9 @@ type VideoMetadata = {
   mediaTime?: number
 }
 
-type PersistedFrameBrowserData = {
-  exportStepFrames: number
-  fileName: string
-  phaseEndFrame: number
-  phaseEndLocked: boolean
-  phases: Phase[]
-  phaseStartFrame: number
-  phaseStartLocked: boolean
-  playbackRate: number
-  rangeEndFrame: number
-  rangeStartFrame: number
-  stepFrames: number
-}
-
-const STORAGE_KEY = "frame-browser:data:v1"
-
 export function FrameBrowser() {
   const videoRef = React.useRef<HTMLVideoElement | null>(null)
   const objectUrlRef = React.useRef("")
-  const hydratedRef = React.useRef(false)
-  const persistedDataRef = React.useRef<PersistedFrameBrowserData | null>(null)
   const fpsSampleRef = React.useRef<{
     lastMediaTime: number | null
     samples: number[]
@@ -133,96 +115,16 @@ export function FrameBrowser() {
     setDefaultVideoFps(null)
     setPresentedFrames(0)
     setMediaTime(0)
-    const persistedData = persistedDataRef.current
-
-    if (persistedData?.fileName === file.name) {
-      setRangeStartFrame(persistedData.rangeStartFrame)
-      setRangeEndFrame(persistedData.rangeEndFrame)
-      setExportStepFrames(persistedData.exportStepFrames)
-      setStepFrames(persistedData.stepFrames)
-      setPlaybackRate(persistedData.playbackRate ?? 1)
-      setPhaseStartFrame(persistedData.phaseStartFrame)
-      setPhaseEndFrame(persistedData.phaseEndFrame)
-      setPhaseStartLocked(persistedData.phaseStartLocked)
-      setPhaseEndLocked(persistedData.phaseEndLocked)
-      setPhases(persistedData.phases)
-    } else {
-      setRangeStartFrame(0)
-      setRangeEndFrame(0)
-      setPhaseStartFrame(0)
-      setPhaseEndFrame(0)
-      setPhaseStartLocked(false)
-      setPhaseEndLocked(false)
-      setPhases([])
-    }
-
+    setRangeStartFrame(0)
+    setRangeEndFrame(0)
+    setPhaseStartFrame(0)
+    setPhaseEndFrame(0)
+    setPhaseStartLocked(false)
+    setPhaseEndLocked(false)
+    setPhases([])
     fpsSampleRef.current = { lastMediaTime: null, samples: [] }
     setExportStatus("Loaded")
   }, [])
-
-  React.useEffect(() => {
-    try {
-      const storedValue = window.localStorage.getItem(STORAGE_KEY)
-
-      if (!storedValue) {
-        hydratedRef.current = true
-        return
-      }
-
-      const data = JSON.parse(storedValue) as PersistedFrameBrowserData
-
-      persistedDataRef.current = data
-      setStepFrames(data.stepFrames)
-      setRangeStartFrame(data.rangeStartFrame)
-      setRangeEndFrame(data.rangeEndFrame)
-      setExportStepFrames(data.exportStepFrames)
-      setPhaseStartFrame(data.phaseStartFrame)
-      setPhaseEndFrame(data.phaseEndFrame)
-      setPhaseStartLocked(data.phaseStartLocked)
-      setPhaseEndLocked(data.phaseEndLocked)
-      setPhases(data.phases)
-      setExportStatus(data.fileName ? `Reload ${data.fileName}` : "No file loaded")
-    } catch {
-      window.localStorage.removeItem(STORAGE_KEY)
-    } finally {
-      hydratedRef.current = true
-    }
-  }, [])
-
-  React.useEffect(() => {
-    if (!hydratedRef.current) {
-      return
-    }
-
-    const data: PersistedFrameBrowserData = {
-      exportStepFrames,
-      fileName: fileName || persistedDataRef.current?.fileName || "",
-      phaseEndFrame,
-      phaseEndLocked,
-      phases,
-      phaseStartFrame,
-      phaseStartLocked,
-      playbackRate,
-      rangeEndFrame,
-      rangeStartFrame,
-      stepFrames,
-    }
-
-    persistedDataRef.current = data
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
-  }, [
-    exportStepFrames,
-    fileName,
-    phaseEndFrame,
-    phaseEndLocked,
-    phases,
-    phaseStartFrame,
-    phaseStartLocked,
-    playbackRate,
-    rangeEndFrame,
-    rangeStartFrame,
-    stepFrames,
-  ])
 
   React.useEffect(() => {
     return () => {

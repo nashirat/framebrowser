@@ -279,7 +279,7 @@ export function PhaseControls({
             min={0}
             max={totalFrames}
             value={phaseStartFrame}
-            disabled={disabled}
+            disabled={disabled || phaseStartLocked}
             onChange={(event) =>
               onPhaseStartFrameChange(
                 clamp(
@@ -299,7 +299,7 @@ export function PhaseControls({
             min={0}
             max={totalFrames}
             value={phaseEndFrame}
-            disabled={disabled}
+            disabled={disabled || !phaseStartLocked || phaseEndLocked}
             onChange={(event) =>
               onPhaseEndFrameChange(
                 clamp(
@@ -319,7 +319,7 @@ export function PhaseControls({
               ? "self-end bg-emerald-600 text-white hover:bg-emerald-700"
               : "self-end"
           }
-          disabled={disabled}
+          disabled={disabled || phaseStartLocked}
           onClick={onUseCurrentAsStart}
         >
           <Plus />
@@ -333,7 +333,7 @@ export function PhaseControls({
               ? "self-end bg-red-600 text-white hover:bg-red-700"
               : "self-end"
           }
-          disabled={disabled}
+          disabled={disabled || !phaseStartLocked || phaseEndLocked}
           onClick={onUseCurrentAsEnd}
         >
           <Plus />
@@ -386,14 +386,9 @@ export function PhaseControls({
                     value={phase.label}
                     className="h-6 min-w-0 px-1.5 text-xs font-medium"
                     aria-label={`${phase.label} name`}
-                    onChange={(event) =>
-                      onRenamePhase(phase.id, event.target.value)
-                    }
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter") {
-                        event.currentTarget.blur()
-                      }
-                    }}
+                    readOnly
+                    disabled
+                    onChange={() => undefined}
                   />
                   <span className="font-mono">
                     {startFrame}-{endFrame}

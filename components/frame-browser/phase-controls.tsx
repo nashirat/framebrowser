@@ -386,9 +386,14 @@ export function PhaseControls({
                     value={phase.label}
                     className="h-6 min-w-0 px-1.5 text-xs font-medium"
                     aria-label={`${phase.label} name`}
-                    readOnly
-                    disabled
-                    onChange={() => undefined}
+                    onChange={(event) =>
+                      onRenamePhase(phase.id, event.target.value)
+                    }
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.currentTarget.blur()
+                      }
+                    }}
                   />
                   <span className="font-mono">
                     {startFrame}-{endFrame}
